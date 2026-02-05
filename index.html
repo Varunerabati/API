@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Time-Based Photo Experience</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <h1>Time-Based Photo Experience</h1>
+      <p id="greeting" aria-live="polite">Loading your moment...</p>
+      <button id="refreshBtn" type="button">Refresh Images</button>
+    </header>
+
+    <main>
+      <section id="status" class="status" aria-live="polite"></section>
+      <section id="gallery" class="gallery" aria-live="polite"></section>
+    </main>
+
+    <template id="imageCardTemplate">
+      <article class="card">
+        <img class="card-image" alt="" loading="lazy" />
+        <div class="card-content">
+          <p class="card-title"></p>
+          <p class="card-credit"></p>
+        </div>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
