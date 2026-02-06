@@ -136,7 +136,8 @@ function renderImages(images) {
   hideLoading();
   
   if (!images || images.length === 0) {
-    gallery.innerHTML = '<p class="error">No images found for this category. Try another one!</p>';
+    gallery.innerHTML =
+      '<p class="col-span-full text-center text-gray-500 dark:text-gray-400 py-10">No images found for this category. Try another one!</p>';
     return;
   }
 
@@ -145,7 +146,8 @@ function renderImages(images) {
 
   images.forEach((image, index) => {
     const item = document.createElement('div');
-    item.className = 'gallery-item cursor-pointer overflow-hidden rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 bg-white dark:bg-gray-800';
+    item.className =
+      'gallery-item group cursor-pointer overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm ring-1 ring-black/5 dark:ring-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900';
     item.setAttribute('role', 'button');
     item.setAttribute('tabindex', '0');
     item.setAttribute('aria-label', `View image: ${image.alt_description || 'Untitled'}`);
@@ -154,7 +156,7 @@ function renderImages(images) {
     img.src = image.urls.small;
     img.alt = image.alt_description || image.description || 'Unsplash photo';
     img.loading = 'lazy';
-    img.className = 'w-full h-48 object-cover';
+    img.className = 'w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105';
 
     item.appendChild(img);
 
@@ -239,12 +241,12 @@ function downloadImage() {
   
   const imageUrl = currentImageData.links?.download || currentImageData.urls.full;
   const imageId = currentImageData.id;
+  if (!imageUrl || !imageId) return;
   
   // Create temporary anchor element
   const link = document.createElement('a');
   link.href = imageUrl;
   link.download = `unsplash-${imageId}.jpg`;
-  link.target = '_blank';
   link.rel = 'noopener noreferrer';
   
   // Trigger download
@@ -254,7 +256,7 @@ function downloadImage() {
   
   // Show feedback
   const originalText = downloadBtn.innerHTML;
-  downloadBtn.innerHTML = '<span>✓</span> Downloaded!';
+  downloadBtn.textContent = 'Downloaded ✓';
   downloadBtn.disabled = true;
   
   setTimeout(() => {
@@ -463,35 +465,49 @@ function fallbackCopyToClipboard(text) {
 }
 
 // Event Listeners
+function bindEventListeners() {
+  // Category buttons
+  categoryButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      // Remove active class from all buttons
+      categoryButtons.forEach((b) => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
 
-// Category buttons
-categoryButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    // Remove active class from all buttons
-    categoryButtons.forEach(b => b.classList.remove('active'));
-    // Add active class to clicked button
-    btn.classList.add('active');
-    // Load images for selected category
-    const category = btn.dataset.category;
-    loadCategoryImages(category);
+      // Add active class to clicked button
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+
+      // Load images for selected category
+      const category = btn.dataset.category;
+      loadCategoryImages(category);
+    });
   });
+
+  // Modal close handlers
+  modalClose.addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', closeModal);
+
+  // ESC key to close modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
+      closeModal();
+    }
+  });
+
+  // Action buttons
+  downloadBtn.addEventListener('click', downloadImage);
+  saveBtn.addEventListener('click', saveImage);
+  shareBtn.addEventListener('click', shareImage);
+}
+
+// Initialize safely after DOM load
+document.addEventListener('DOMContentLoaded', () => {
+  bindEventListeners();
+
+  // Set initial aria-selected state
+  categoryButtons.forEach((b) => b.setAttribute('aria-selected', 'false'));
+
+  init();
 });
-
-// Modal close handlers
-modalClose.addEventListener('click', closeModal);
-modalOverlay.addEventListener('click', closeModal);
-
-// ESC key to close modal
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
-    closeModal();
-  }
-});
-
-// Action buttons
-downloadBtn.addEventListener('click', downloadImage);
-saveBtn.addEventListener('click', saveImage);
-shareBtn.addEventListener('click', shareImage);
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', init);
